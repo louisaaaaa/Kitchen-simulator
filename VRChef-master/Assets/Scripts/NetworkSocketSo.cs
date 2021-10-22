@@ -50,7 +50,9 @@ public class NetworkSocketSo : MonoBehaviour
 
     private Myclass _testObject;
     private void OnEnable()
-    {
+    { 
+        _recQueue = new ConcurrentQueue<string>();
+        _sendQueue = new BlockingCollection<string>();
         _running = true;
         SetupSocket();
         _rec = new Thread(ReceiveData);
@@ -58,8 +60,7 @@ public class NetworkSocketSo : MonoBehaviour
         _send = new Thread(SendDataThread);
         _send.Start();//Start send data thread
         
-        _recQueue = new ConcurrentQueue<string>();
-        _sendQueue = new BlockingCollection<string>();
+       
 
         //_a = Instantiate(taskUI);
         //_a.transform.SetParent(gameObject.transform);
@@ -70,6 +71,8 @@ public class NetworkSocketSo : MonoBehaviour
             Recipe = "Boil the water",
             MyAction = "cut tomato"
         };
+        
+        _sendQueue.Add("Sending Data");
        
     }
 
@@ -87,7 +90,7 @@ public class NetworkSocketSo : MonoBehaviour
     {
         while(_running)
         {
-            _sendQueue.Add("Sending Data");
+            
             string jsonText;
             var data = _sendQueue.Take();
             //var test = JsonUtility.ToJson(_testObject);

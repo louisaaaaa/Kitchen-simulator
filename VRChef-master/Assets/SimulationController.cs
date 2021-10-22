@@ -62,6 +62,8 @@ public class SimulationController : MonoBehaviour {
         {
             case Action.ActionType.Boil:
                 if (actions[currentActionIndex].GetActionType() == Action.ActionType.Boil)
+                    GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Boil!!");
+
                 {
                     if (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
                     {
@@ -93,8 +95,8 @@ public class SimulationController : MonoBehaviour {
             case Action.ActionType.Chop:
                 if (actions[currentActionIndex].GetActionType() == Action.ActionType.Chop)
                 {
-                    NetworkSocketSo _ns= GameObject.Find("Network Socket So").GetComponent<NetworkSocketSo>();
-                    _ns.AddData("Chop!!");
+                    GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Chop!!");
+                    
                     if ( (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
                         && !(choppedObjects.Contains(fc.transform.root.GetInstanceID())) )
                     {
@@ -124,6 +126,8 @@ public class SimulationController : MonoBehaviour {
                         {
                             //Debug.Log(numChoppedPieces+ " - " + numSlices);
                             taskListUI.GetComponent<AddActionsTaskList>().SetStepCompleted(currentActionIndex);
+                            GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Step completed!!");
+
                             currentActionIndex++;
                             choppedObjects.Add(fc.transform.root.GetInstanceID());
                             numChoppedPieces = 0;
@@ -167,6 +171,8 @@ public class SimulationController : MonoBehaviour {
             case Action.ActionType.Fry:
                 if(actions[currentActionIndex].GetActionType() == Action.ActionType.Fry)
                 {
+                    GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Fry!!");
+
                     if (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
                     {
                         if (foodIndex == currentActionIndex)
