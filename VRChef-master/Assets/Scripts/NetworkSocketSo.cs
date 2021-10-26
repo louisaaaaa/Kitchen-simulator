@@ -18,7 +18,7 @@ using System.Linq;
 public class NetworkSocketSo : MonoBehaviour
 {
     public string host = "localhost";
-    public int port = 7778;
+    public int port = 9999;
 
     private bool _socketReady = false;
     internal string InputBuffer = "";
@@ -34,7 +34,9 @@ public class NetworkSocketSo : MonoBehaviour
 
     private ConcurrentQueue<string> _recQueue;
     private BlockingCollection<string> _sendQueue;
-    
+
+    //private List<Tkey> tkeys;
+
     public TextMeshPro displayText;
     public GameObject taskUI;
     private GameObject _a;
@@ -48,12 +50,24 @@ public class NetworkSocketSo : MonoBehaviour
         public string Recipe;
     }
 
+    private class KitchenData
+    {
+        public string Action;
+        public string Food;
+        public string Status;
+        //public int Pieces;
+    }
+
     private Myclass _testObject;
+    private KitchenData _tempobject;
     private void OnEnable()
     { 
+       
+        
         _recQueue = new ConcurrentQueue<string>();
         _sendQueue = new BlockingCollection<string>();
         _running = true;
+        
         SetupSocket();
         _rec = new Thread(ReceiveData);
         _rec.Start();//Start receive data thread
@@ -72,7 +86,17 @@ public class NetworkSocketSo : MonoBehaviour
             MyAction = "cut tomato"
         };
         
-        _sendQueue.Add("Sending Data");
+        _tempobject = new KitchenData
+        {
+            Action = "sending the data",
+            Food = "egg"
+        };
+        
+        var initial = JsonUtility.ToJson(_tempobject);
+        
+        _sendQueue.Add("???");
+        _sendQueue.Add(initial);
+        _sendQueue.Add("???");
        
     }
 
@@ -93,7 +117,7 @@ public class NetworkSocketSo : MonoBehaviour
             
             string jsonText;
             var data = _sendQueue.Take();
-            //var test = JsonUtility.ToJson(_testObject);
+            //var test = JsonUtility.ToJson(data);
             WriteSocket(data+"\n");
             
         }
@@ -116,6 +140,7 @@ public class NetworkSocketSo : MonoBehaviour
             {
                 var jsonObject = JsonUtility.FromJson<Myclass>(jsonText);
                 displayText.text = jsonObject.MyAction;
+                //JsonConvert.DeserializeObject()
                 
             }
             else break;
