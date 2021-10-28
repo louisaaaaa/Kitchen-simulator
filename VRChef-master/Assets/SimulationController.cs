@@ -24,17 +24,16 @@ public class SimulationController : MonoBehaviour {
     public List<int> fryCounts;
     public bool recipeDone = false;
 
-    
     private class KitchenData
     {
-        public string CurrentStep;
-        public List<string> WholeRecipe;
-        public string CurrentAction;
-        public string CurrentFood;
-        public int Pieces;
+        public string Action;
+        public string Food;
+        public string Status;
+        //public int Pieces;
     }
 
     private KitchenData _myData;
+
     public void SetRecipeToControl(Recipe r)
     {
         recipeToControl = r;
@@ -55,6 +54,7 @@ public class SimulationController : MonoBehaviour {
         fryObjects = new List<GameObject>();
         cookCounts = new List<int>();
         fryCounts = new List<int>();
+        _myData = new KitchenData();
     }
 
     public void OnOperationDone(FoodCharacteristic fc, OperationEventArgs e)
@@ -66,30 +66,17 @@ public class SimulationController : MonoBehaviour {
         }
 
         Debug.Log("operation cont'");
-        
-        /*
-        GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData(e.OperationType.ToString());
 
-        _myData.CurrentAction = e.OperationType.ToString();
-        _myData.CurrentFood = fc.transform.GetChild(0).gameObject.ToString();
-        _myData.Pieces = numChoppedPieces;
-        var temp = JsonUtility.ToJson(_myData);
-        GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData(temp);
-        */
         switch (e.OperationType)
-        { 
-              
+        {
             case Action.ActionType.Boil:
-                //GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Chop!!");
                 if (actions[currentActionIndex].GetActionType() == Action.ActionType.Boil)
-                   
-
                 {
-                    if (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)//
+                    if (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
                     {
                         if (foodIndex == currentActionIndex)
                         {
-                            foodsInRecipe.Add(fc.transform.GetChild(0).gameObject);//foods inrecipe可能的存放食物object的list注意child
+                            foodsInRecipe.Add(fc.transform.GetChild(0).gameObject);
                             foodIndex++;
                         }
                         taskListUI.GetComponent<AddActionsTaskList>().SetStepCompleted(currentActionIndex);
@@ -100,6 +87,7 @@ public class SimulationController : MonoBehaviour {
 
             // this case will be run for only eggs. Therefore, checking that if broken thing has a "FoodStatus" is needed.
             case Action.ActionType.Break:
+                if ( fc.GetComponent<FoodStatus>() && actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
                 {
                     if (foodIndex == currentActionIndex)
                     {
@@ -112,11 +100,20 @@ public class SimulationController : MonoBehaviour {
                 break;
 
             case Action.ActionType.Chop:
-                //GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Chop!!");
+                
                 if (actions[currentActionIndex].GetActionType() == Action.ActionType.Chop)
                 {
+                    NetworkSocketSo _ns= GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>();
+                    _myData.Action = "Chop";
+                    _myData.Food = fc.transform.parent.gameObject.ToString();
+                    _myData.Status = numChoppedPieces.ToString();
+                   
+                    var temp =  JsonUtility.ToJson(_myData);
+                    _ns.AddData(temp);
+                    //_ns.AddData("Chop!!");
+                    
                     if ( (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
-                         && !(choppedObjects.Contains(fc.transform.root.GetInstanceID())) )
+                        && !(choppedObjects.Contains(fc.transform.root.GetInstanceID())) )
                     {
                         if (foodIndex == currentActionIndex)
                         {
@@ -144,8 +141,6 @@ public class SimulationController : MonoBehaviour {
                         {
                             //Debug.Log(numChoppedPieces+ " - " + numSlices);
                             taskListUI.GetComponent<AddActionsTaskList>().SetStepCompleted(currentActionIndex);
-                            //GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Step completed!!");
-
                             currentActionIndex++;
                             choppedObjects.Add(fc.transform.root.GetInstanceID());
                             numChoppedPieces = 0;
@@ -163,7 +158,7 @@ public class SimulationController : MonoBehaviour {
                     {
                         if (foodIndex == currentActionIndex)
                         {
-                            foodsInRecipe.Add(fc.transform.parent.gameObject           );
+                            foodsInRecipe.Add(fc.transform.parent.gameObject);
                             foodIndex++;
                         }
 
@@ -189,8 +184,6 @@ public class SimulationController : MonoBehaviour {
             case Action.ActionType.Fry:
                 if(actions[currentActionIndex].GetActionType() == Action.ActionType.Fry)
                 {
-                    //GameObject.Find("MyPanel").GetComponent<NetworkSocketSo>().AddData("Fry!!");
-
                     if (actions[currentActionIndex].GetInvolvedFood().GetFoodIdentifier() == fc.GetComponent<FoodStatus>().foodIdentifier)
                     {
                         if (foodIndex == currentActionIndex)

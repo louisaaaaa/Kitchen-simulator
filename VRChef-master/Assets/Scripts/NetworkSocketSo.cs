@@ -89,14 +89,15 @@ public class NetworkSocketSo : MonoBehaviour
         _tempobject = new KitchenData
         {
             Action = "sending the data",
-            Food = "egg"
+            Food = "egg",
+            Status = "empty"
         };
         
         var initial = JsonUtility.ToJson(_tempobject);
         
-        _sendQueue.Add("???");
+        //_sendQueue.Add("???");
         _sendQueue.Add(initial);
-        _sendQueue.Add("???");
+        //_sendQueue.Add("???");
        
     }
 
